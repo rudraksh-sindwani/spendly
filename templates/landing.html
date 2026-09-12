@@ -28,7 +28,7 @@
 
     <div class="hero-cta-row">
         <a href="{{ url_for('register') }}" class="hero-btn">Create free account</a>
-        <a href="#" class="hero-btn">See how it works</a>
+        <a href="#" class="hero-btn" id="how-it-works-trigger" aria-haspopup="dialog">See how it works</a>
     </div>
 
     <div class="hero-preview">
@@ -110,4 +110,62 @@
     </div>
 </section>
 
+<div class="video-modal" id="video-modal" hidden>
+    <div class="video-modal-backdrop" data-close></div>
+    <div class="video-modal-dialog" role="dialog" aria-modal="true" aria-label="How Spendly works">
+        <button type="button" class="video-modal-close" data-close aria-label="Close video">&times;</button>
+        <div class="video-modal-frame">
+            <iframe
+                data-src="https://www.youtube-nocookie.com/embed/jNQXAC9IVRw?autoplay=1&amp;rel=0"
+                title="How Spendly works"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen></iframe>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var trigger = document.getElementById('how-it-works-trigger');
+    var modal = document.getElementById('video-modal');
+    if (!trigger || !modal) return;
+
+    var frame = modal.querySelector('iframe');
+    var closeBtn = modal.querySelector('.video-modal-close');
+    var embedUrl = frame.getAttribute('data-src');
+    var lastFocused = null;
+
+    function openModal(event) {
+        event.preventDefault();
+        lastFocused = document.activeElement;
+        frame.setAttribute('src', embedUrl);
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        closeBtn.focus();
+    }
+
+    function closeModal() {
+        if (modal.hidden) return;
+        modal.hidden = true;
+        // Removing the src unloads the player, which stops audio and video.
+        frame.removeAttribute('src');
+        document.body.style.overflow = '';
+        if (lastFocused) lastFocused.focus();
+    }
+
+    trigger.addEventListener('click', openModal);
+
+    // Backdrop and close button both carry data-close.
+    modal.addEventListener('click', function (event) {
+        if (event.target.hasAttribute('data-close')) closeModal();
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') closeModal();
+    });
+})();
+</script>
 {% endblock %}
