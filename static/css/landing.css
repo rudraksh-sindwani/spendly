@@ -1,0 +1,208 @@
+/* ------------------------------------------------------------------ */
+/* Landing hero                                                        */
+/* Loaded after style.css, so these rules win where they overlap.      */
+/* ------------------------------------------------------------------ */
+
+.hero-section {
+    --hero-green: #3d9a6b;
+    --hero-ink: #131513;
+    --hero-muted: #6b716e;
+    --hero-faint: #9aa09d;
+    --hero-line: #e9e9e5;
+    --hero-surface: #f7f7f5;
+    --hero-radius: 12px;
+
+    font-family: 'DM Sans', system-ui, sans-serif;
+    text-align: center;
+    padding: 4.5rem 2rem 5rem;
+    max-width: 1060px;
+    margin: 0 auto;
+}
+
+/* Eyebrow pill --------------------------------------------------- */
+
+.hero-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #d9f2e3;
+    color: #216b46;
+    font-size: 1.0625rem;
+    padding: 0.55rem 1.15rem;
+    border-radius: 999px;
+}
+
+.hero-pill-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--hero-green);
+}
+
+/* Headline ------------------------------------------------------- */
+
+.hero-heading {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 4.25rem;
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.022em;
+    color: var(--hero-ink);
+    margin: 1.75rem 0 0;
+}
+
+.hero-heading-accent { color: var(--hero-green); }
+
+.hero-lede {
+    font-size: 1.25rem;
+    line-height: 1.55;
+    color: var(--hero-muted);
+    max-width: 520px;
+    margin: 1.5rem auto 0;
+}
+
+/* Buttons -------------------------------------------------------- */
+
+.hero-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: 2.5rem;
+}
+
+.hero-btn {
+    display: inline-block;
+    background: var(--hero-ink);
+    color: #ffffff;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    padding: 1rem 1.75rem;
+    border-radius: 10px;
+    transition: background 0.2s;
+}
+
+.hero-btn:hover { background: #2f332f; }
+
+/* Preview panel -------------------------------------------------- */
+
+.hero-preview {
+    background: var(--hero-surface);
+    border: 1px solid var(--hero-line);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 4rem;
+    text-align: left;
+}
+
+.hero-preview-dots {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.hero-preview-dots span {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+}
+
+.hero-dot-red { background: #e8938f; }
+.hero-dot-amber { background: #f0c674; }
+.hero-dot-green { background: #8fd1b0; }
+
+/* Stat cards ----------------------------------------------------- */
+
+.hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.hero-stat {
+    background: #ffffff;
+    border: 1px solid var(--hero-line);
+    border-radius: var(--hero-radius);
+    padding: 1.15rem 1.25rem;
+}
+
+.hero-stat-label {
+    display: block;
+    font-size: 0.9375rem;
+    color: var(--hero-muted);
+}
+
+.hero-stat-value {
+    display: block;
+    font-size: 1.875rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--hero-ink);
+    margin: 0.35rem 0 0.25rem;
+}
+
+.hero-stat-note {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--hero-faint);
+}
+
+.hero-stat-note.is-up { color: #d9534f; }
+.hero-stat-note.is-good { color: var(--hero-green); }
+
+/* Category bars -------------------------------------------------- */
+
+.hero-bars {
+    background: #ffffff;
+    border: 1px solid var(--hero-line);
+    border-radius: var(--hero-radius);
+    padding: 1.25rem 1.5rem;
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.9rem;
+}
+
+.hero-bar-row {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    align-items: center;
+    gap: 1rem;
+}
+
+.hero-bar-label {
+    font-size: 0.9375rem;
+    color: var(--hero-muted);
+    text-align: right;
+}
+
+.hero-bar-track {
+    height: 10px;
+    background: #ecebe7;
+    border-radius: 999px;
+}
+
+.hero-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.hero-bar-food { background: #e8a33d; }
+.hero-bar-travel { background: #4a90d9; }
+.hero-bar-bills { background: #7b68d9; }
+
+/* Responsive ----------------------------------------------------- */
+
+@media (max-width: 860px) {
+    .hero-heading { font-size: 3rem; }
+    .hero-stats { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+    .hero-section { padding: 3rem 1rem 3.5rem; }
+    .hero-heading { font-size: 2.25rem; }
+    .hero-pill { font-size: 0.9375rem; }
+    .hero-lede { font-size: 1.0625rem; }
+    .hero-cta-row { gap: 0.75rem; }
+    .hero-btn { width: 100%; }
+    .hero-preview { padding: 1rem; }
+}
