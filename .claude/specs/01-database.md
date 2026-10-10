@@ -191,3 +191,4 @@ Use exactly these values:
 - [ ]  App starts without errors
 - [ ]  Foreign key enforcement works
 - [ ]  All queries use parameterized SQL
+
