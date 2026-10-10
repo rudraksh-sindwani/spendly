@@ -9,6 +9,10 @@
 
 {% block content %}
 
+{% for category, message in get_flashed_messages(with_categories=true) %}
+<div class="auth-{{ 'success' if category == 'success' else 'error' }}">{{ message }}</div>
+{% endfor %}
+
 <section class="hero-section">
 
     <div class="hero-pill">
