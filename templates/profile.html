@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Profile — Spendly{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+
+    <section class="profile-card" aria-label="Account">
+        <div class="profile-avatar" aria-hidden="true">{{ user.initials }}</div>
+        <div class="profile-identity">
+            <h1 class="profile-name">{{ user.name }}</h1>
+            <p class="profile-email">{{ user.email }}</p>
+        </div>
+        <p class="profile-since">
+            <span class="profile-since-label">Member since</span>
+            <span class="profile-since-value">{{ user.member_since }}</span>
+        </p>
+    </section>
+
+    <section class="profile-stats" aria-label="Summary">
+        <div class="stat-card">
+            <p class="stat-label">Total spent</p>
+            <p class="stat-value">₹{{ "{:,}".format(stats.total_spent) }}</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">Transactions</p>
+            <p class="stat-value">{{ stats.transaction_count }}</p>
+        </div>
+        <div class="stat-card">
+            <p class="stat-label">Top category</p>
+            <p class="stat-value">{{ stats.top_category }}</p>
+        </div>
+    </section>
+
+    <div class="profile-grid">
+        <section class="panel" aria-labelledby="tx-heading">
+            <h2 class="panel-title" id="tx-heading">Recent transactions</h2>
+            <div class="table-scroll">
+                <table class="tx-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Category</th>
+                            <th scope="col" class="num">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in transactions %}
+                        <tr>
+                            <td class="tx-date">{{ tx.date }}</td>
+                            <td>{{ tx.description }}</td>
+                            <td><span class="badge badge--{{ tx.category|lower }}">{{ tx.category }}</span></td>
+                            <td class="num">₹{{ "{:,}".format(tx.amount) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel" aria-labelledby="cat-heading">
+            <h2 class="panel-title" id="cat-heading">Spending by category</h2>
+            <ul class="cat-list">
+                {% for cat in categories %}
+                <li class="cat-row">
+                    <div class="cat-row-head">
+                        <span class="cat-name">{{ cat.name }}</span>
+                        <span class="cat-amount">₹{{ "{:,}".format(cat.total) }} · {{ cat.percent }}%</span>
+                    </div>
+                    <div class="cat-track">
+                        <div class="cat-bar cat-bar--{{ cat.name|lower }} w-{{ cat.bar }}"></div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+
+</div>
+{% endblock %}
