@@ -24,7 +24,7 @@
     <section class="profile-stats" aria-label="Summary">
         <div class="stat-card">
             <p class="stat-label">Total spent</p>
-            <p class="stat-value">₹{{ "{:,}".format(stats.total_spent) }}</p>
+            <p class="stat-value">₹{{ "{:,.2f}".format(stats.total_spent) }}</p>
         </div>
         <div class="stat-card">
             <p class="stat-label">Transactions</p>
@@ -55,8 +55,10 @@
                             <td class="tx-date">{{ tx.date }}</td>
                             <td>{{ tx.description }}</td>
                             <td><span class="badge badge--{{ tx.category|lower }}">{{ tx.category }}</span></td>
-                            <td class="num">₹{{ "{:,}".format(tx.amount) }}</td>
+                            <td class="num">₹{{ "{:,.2f}".format(tx.amount) }}</td>
                         </tr>
+                        {% else %}
+                        <tr><td colspan="4" class="empty-state">No transactions yet.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -70,12 +72,14 @@
                 <li class="cat-row">
                     <div class="cat-row-head">
                         <span class="cat-name">{{ cat.name }}</span>
-                        <span class="cat-amount">₹{{ "{:,}".format(cat.total) }} · {{ cat.percent }}%</span>
+                        <span class="cat-amount">₹{{ "{:,.2f}".format(cat.amount) }} · {{ cat.pct }}%</span>
                     </div>
                     <div class="cat-track">
                         <div class="cat-bar cat-bar--{{ cat.name|lower }} w-{{ cat.bar }}"></div>
                     </div>
                 </li>
+                {% else %}
+                <li class="empty-state">No spending to show yet.</li>
                 {% endfor %}
             </ul>
         </section>

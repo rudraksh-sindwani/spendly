@@ -4,6 +4,12 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from werkzeug.security import check_password_hash
 
 from database.db import create_user, get_db, get_user_by_email, init_db, seed_db
+from database.queries import (
+    get_category_breakdown,
+    get_recent_transactions,
+    get_summary_stats,
+    get_user_by_id,
+)
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key-change-in-production"
@@ -101,54 +107,39 @@ def privacy():
 
 
 # ------------------------------------------------------------------ #
-# Placeholder routes — students will implement these                  #
+# Profile and placeholder routes                                      #
 # ------------------------------------------------------------------ #
 
 @app.route("/profile")
 def profile():
-    if not session.get("user_id"):
+    user_id = session.get("user_id")
+    if not user_id:
         return redirect(url_for("login"))
 
-    user = {
-        "name": "Rudraksh Sindwani",
-        "email": "rudraksh@example.com",
-        "initials": "RS",
-        "member_since": "January 2026",
-    }
+    # ---- SECTION: user + summary stats (subagent 2) ----
+    user = get_user_by_id(user_id)
+    if user is not None:
+        words = user["name"].split()
+        user["initials"] = (
+            (words[0][0] + words[-1][0]).upper() if len(words) > 1
+            else words[0][0].upper() if words else "?"
+        )
+    stats = get_summary_stats(user_id)
+    # ---- END SECTION: user + summary stats ----
 
-    transactions = [
-        {"date": "12 Oct 2026", "description": "Swiggy dinner", "category": "Food", "amount": 640},
-        {"date": "10 Oct 2026", "description": "Metro card recharge", "category": "Transport", "amount": 500},
-        {"date": "08 Oct 2026", "description": "Electricity bill", "category": "Bills", "amount": 1850},
-        {"date": "05 Oct 2026", "description": "Running shoes", "category": "Shopping", "amount": 2600},
-        {"date": "03 Oct 2026", "description": "Pharmacy", "category": "Health", "amount": 420},
-        {"date": "01 Oct 2026", "description": "Grocery run", "category": "Food", "amount": 1380},
-    ]
+    if user is None:
+        session.clear()
+        return redirect(url_for("login"))
 
-    category_totals = [
-        ("Food", 4200),
-        ("Bills", 3500),
-        ("Shopping", 2600),
-        ("Transport", 1800),
-        ("Health", 900),
-    ]
-    grand_total = sum(total for _, total in category_totals)
-    categories = [
-        {
-            "name": name,
-            "total": total,
-            "percent": round(total / grand_total * 100),
-            # bar widths are bucketed to 5% steps so CSS classes can size them
-            "bar": round(total / grand_total * 20) * 5,
-        }
-        for name, total in category_totals
-    ]
+    # ---- SECTION: transaction history (subagent 1) ----
+    transactions = get_recent_transactions(user_id)
+    # ---- END SECTION: transaction history ----
 
-    stats = {
-        "total_spent": grand_total,
-        "transaction_count": 24,
-        "top_category": category_totals[0][0],
-    }
+    # ---- SECTION: category breakdown (subagent 3) ----
+    categories = get_category_breakdown(user_id)
+    for c in categories:
+        c["bar"] = round(c["pct"] / 5) * 5
+    # ---- END SECTION: category breakdown ----
 
     return render_template(
         "profile.html",
