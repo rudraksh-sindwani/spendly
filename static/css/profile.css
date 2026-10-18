@@ -8,6 +8,8 @@
     --cat-shopping: #8b5e83;
     --cat-transport: #5b7fa6;
     --cat-health: var(--danger);
+    --cat-entertainment: #b5703f;
+    --cat-other: var(--ink-muted);
 }
 
 .profile-page {
@@ -193,6 +195,14 @@
 .badge--health { background: var(--danger-light); color: var(--danger); }
 .badge--shopping { color: var(--cat-shopping); }
 .badge--transport { color: var(--cat-transport); }
+.badge--entertainment { color: var(--cat-entertainment); }
+.badge--other { color: var(--cat-other); }
+
+.empty-state {
+    padding: 1rem 0;
+    color: var(--ink-muted);
+    font-size: 0.9rem;
+}
 
 /* Category breakdown */
 
@@ -237,6 +247,8 @@
 .cat-bar--shopping { background: var(--cat-shopping); }
 .cat-bar--transport { background: var(--cat-transport); }
 .cat-bar--health { background: var(--cat-health); }
+.cat-bar--entertainment { background: var(--cat-entertainment); }
+.cat-bar--other { background: var(--cat-other); }
 
 /* Bar width buckets (5% steps) */
 
