@@ -1,4 +1,6 @@
+import calendar
 import sqlite3
+from datetime import date, datetime, timedelta
 
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash
@@ -110,11 +112,51 @@ def privacy():
 # Profile and placeholder routes                                      #
 # ------------------------------------------------------------------ #
 
+def _parse_iso_date(value):
+    try:
+        return datetime.strptime(value or "", "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+
+def _format_day(d):
+    return f"{d.day} {d.strftime('%b %Y')}"
+
+
 @app.route("/profile")
 def profile():
     user_id = session.get("user_id")
     if not user_id:
         return redirect(url_for("login"))
+
+    # ---- SECTION: date filter ----
+    start = _parse_iso_date(request.args.get("from"))
+    end = _parse_iso_date(request.args.get("to"))
+    range_reversed = bool(start and end and start > end)
+    if range_reversed:
+        start = end = None
+    date_from = start.isoformat() if start else None
+    date_to = end.isoformat() if end else None
+    filter_active = bool(start or end)
+
+    today = date.today()
+    presets = {
+        "month_start": today.replace(day=1).isoformat(),
+        "month_end": today.replace(
+            day=calendar.monthrange(today.year, today.month)[1]
+        ).isoformat(),
+        "last30_start": (today - timedelta(days=29)).isoformat(),
+        "last30_end": today.isoformat(),
+    }
+
+    range_label = ""
+    if start and end:
+        range_label = f"{_format_day(start)} – {_format_day(end)}"
+    elif start:
+        range_label = f"From {_format_day(start)}"
+    elif end:
+        range_label = f"Until {_format_day(end)}"
+    # ---- END SECTION: date filter ----
 
     # ---- SECTION: user + summary stats (subagent 2) ----
     user = get_user_by_id(user_id)
@@ -124,19 +166,27 @@ def profile():
             (words[0][0] + words[-1][0]).upper() if len(words) > 1
             else words[0][0].upper() if words else "?"
         )
-    stats = get_summary_stats(user_id)
+    stats = get_summary_stats(user_id, date_from, date_to)
     # ---- END SECTION: user + summary stats ----
 
     if user is None:
         session.clear()
         return redirect(url_for("login"))
 
+    if range_reversed:
+        flash("Start date must be on or before end date", "error")
+
     # ---- SECTION: transaction history (subagent 1) ----
-    transactions = get_recent_transactions(user_id)
+    transactions = get_recent_transactions(
+        user_id,
+        limit=None if filter_active else 10,
+        date_from=date_from,
+        date_to=date_to,
+    )
     # ---- END SECTION: transaction history ----
 
     # ---- SECTION: category breakdown (subagent 3) ----
-    categories = get_category_breakdown(user_id)
+    categories = get_category_breakdown(user_id, date_from, date_to)
     for c in categories:
         c["bar"] = round(c["pct"] / 5) * 5
     # ---- END SECTION: category breakdown ----
@@ -147,6 +197,11 @@ def profile():
         stats=stats,
         transactions=transactions,
         categories=categories,
+        date_from=date_from or "",
+        date_to=date_to or "",
+        filter_active=filter_active,
+        range_label=range_label,
+        presets=presets,
     )
 
 
