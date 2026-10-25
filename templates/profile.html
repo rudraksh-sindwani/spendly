@@ -21,6 +21,35 @@
         </p>
     </section>
 
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+    <div class="auth-{{ 'success' if category == 'success' else 'error' }}">{{ message }}</div>
+    {% endfor %}
+
+    <section class="filter-bar" aria-label="Date filter">
+        <form class="filter-form" method="get" action="{{ url_for('profile') }}">
+            <div class="filter-field">
+                <label for="filter-from">From</label>
+                <input class="form-input" type="date" id="filter-from" name="from" value="{{ date_from }}">
+            </div>
+            <div class="filter-field">
+                <label for="filter-to">To</label>
+                <input class="form-input" type="date" id="filter-to" name="to" value="{{ date_to }}">
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn-primary">Apply</button>
+                <a class="btn-ghost" href="{{ url_for('profile') }}">Clear</a>
+            </div>
+        </form>
+        <div class="filter-presets">
+            <a href="{{ url_for('profile', **{'from': presets.month_start, 'to': presets.month_end}) }}">This month</a>
+            <a href="{{ url_for('profile', **{'from': presets.last30_start, 'to': presets.last30_end}) }}">Last 30 days</a>
+            <a href="{{ url_for('profile') }}">All time</a>
+        </div>
+        {% if filter_active %}
+        <p class="filter-range">Showing: {{ range_label }}</p>
+        {% endif %}
+    </section>
+
     <section class="profile-stats" aria-label="Summary">
         <div class="stat-card">
             <p class="stat-label">Total spent</p>
@@ -38,7 +67,7 @@
 
     <div class="profile-grid">
         <section class="panel" aria-labelledby="tx-heading">
-            <h2 class="panel-title" id="tx-heading">Recent transactions</h2>
+            <h2 class="panel-title" id="tx-heading">{{ "Transactions" if filter_active else "Recent transactions" }}</h2>
             <div class="table-scroll">
                 <table class="tx-table">
                     <thead>
@@ -58,7 +87,7 @@
                             <td class="num">₹{{ "{:,.2f}".format(tx.amount) }}</td>
                         </tr>
                         {% else %}
-                        <tr><td colspan="4" class="empty-state">No transactions yet.</td></tr>
+                        <tr><td colspan="4" class="empty-state">{{ "No transactions in this period." if filter_active else "No transactions yet." }}</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
