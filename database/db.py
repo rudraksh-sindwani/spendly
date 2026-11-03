@@ -4,6 +4,16 @@ from datetime import date
 
 from werkzeug.security import generate_password_hash
 
+EXPENSE_CATEGORIES = [
+    "Food",
+    "Transport",
+    "Bills",
+    "Health",
+    "Entertainment",
+    "Shopping",
+    "Other",
+]
+
 DB_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
     "expense_tracker.db",
@@ -68,6 +78,21 @@ def get_user_by_email(email):
         return conn.execute(
             "SELECT * FROM users WHERE email = ?", (email,)
         ).fetchone()
+    finally:
+        conn.close()
+
+
+def create_expense(user_id, amount, category, expense_date, description):
+    """Insert an expense for user_id and return its new row id."""
+    conn = get_db()
+    try:
+        cur = conn.execute(
+            "INSERT INTO expenses (user_id, amount, category, date, description) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (user_id, amount, category, expense_date, description),
+        )
+        conn.commit()
+        return cur.lastrowid
     finally:
         conn.close()
 

@@ -335,3 +335,14 @@
     .filter-actions .btn-primary,
     .filter-actions .btn-ghost { flex: 1; text-align: center; }
 }
+
+/* Panel header with action */
+.panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.panel-head .panel-title { margin-bottom: 0; }

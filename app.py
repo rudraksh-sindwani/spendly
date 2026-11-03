@@ -1,11 +1,21 @@
 import calendar
+import math
+import os
 import sqlite3
 from datetime import date, datetime, timedelta
 
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash
 
-from database.db import create_user, get_db, get_user_by_email, init_db, seed_db
+from database.db import (
+    EXPENSE_CATEGORIES,
+    create_expense,
+    create_user,
+    get_db,
+    get_user_by_email,
+    init_db,
+    seed_db,
+)
 from database.queries import (
     get_category_breakdown,
     get_recent_transactions,
@@ -14,7 +24,7 @@ from database.queries import (
 )
 
 app = Flask(__name__)
-app.secret_key = "dev-secret-key-change-in-production"
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
 
 with app.app_context():
     init_db()
@@ -205,9 +215,73 @@ def profile():
     )
 
 
-@app.route("/expenses/add")
+@app.route("/analytics")
+def analytics():
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    return render_template("analytics.html")
+
+
+MAX_EXPENSE_AMOUNT = 10_000_000
+MAX_DESCRIPTION_LENGTH = 200
+
+
+def _validate_expense_form(form):
+    """Return (amount, error); error is None when the form is valid."""
+    try:
+        amount = float(form["amount"])
+    except ValueError:
+        return None, "Enter a valid amount"
+    if not math.isfinite(amount):
+        return None, "Enter a valid amount"
+    amount = round(amount, 2)
+    if amount <= 0:
+        return None, "Amount must be greater than zero"
+    if amount > MAX_EXPENSE_AMOUNT:
+        return None, f"Amount must be {MAX_EXPENSE_AMOUNT:,} or less"
+    if form["category"] not in EXPENSE_CATEGORIES:
+        return None, "Choose a valid category"
+    if _parse_iso_date(form["date"]) is None:
+        return None, "Enter a valid date"
+    if len(form["description"]) > MAX_DESCRIPTION_LENGTH:
+        return None, f"Description must be {MAX_DESCRIPTION_LENGTH} characters or fewer"
+    return amount, None
+
+
+@app.route("/expenses/add", methods=["GET", "POST"])
 def add_expense():
-    return "Add expense — coming in Step 7"
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("login"))
+
+    if request.method == "GET":
+        # The template reads form.<field>, so GET passes a dict with just the date.
+        return render_template(
+            "add_expense.html",
+            categories=EXPENSE_CATEGORIES,
+            form={"date": date.today().isoformat()},
+        )
+
+    form = {
+        "amount": request.form.get("amount", "").strip(),
+        "category": request.form.get("category", "").strip(),
+        "date": request.form.get("date", "").strip(),
+        "description": request.form.get("description", "").strip(),
+    }
+
+    amount, error = _validate_expense_form(form)
+    if error:
+        flash(error, "error")
+        return render_template(
+            "add_expense.html", categories=EXPENSE_CATEGORIES, form=form
+        )
+
+    create_expense(
+        user_id, amount, form["category"], form["date"], form["description"] or None
+    )
+    flash("Expense added.", "success")
+    return redirect(url_for("profile"))
 
 
 @app.route("/expenses/<int:id>/edit")
@@ -221,4 +295,4 @@ def delete_expense(id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True,port=5001)
+    app.run(debug=os.environ.get("FLASK_DEBUG", "1") == "1", port=5001)
