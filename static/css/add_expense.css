@@ -1,0 +1,22 @@
+.expense-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.expense-form-actions .btn-submit {
+    width: auto;
+    flex: 1;
+}
+
+.expense-select {
+    appearance: auto;
+    background: var(--paper-card);
+    color: var(--ink);
+}
+
+.expense-hint {
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+}

@@ -67,7 +67,10 @@
 
     <div class="profile-grid">
         <section class="panel" aria-labelledby="tx-heading">
-            <h2 class="panel-title" id="tx-heading">{{ "Transactions" if filter_active else "Recent transactions" }}</h2>
+            <div class="panel-head">
+                <h2 class="panel-title" id="tx-heading">{{ "Transactions" if filter_active else "Recent transactions" }}</h2>
+                <a class="btn-primary" href="{{ url_for('add_expense') }}">Add expense</a>
+            </div>
             <div class="table-scroll">
                 <table class="tx-table">
                     <thead>
